@@ -59,6 +59,15 @@ public class MainActivity extends AppCompatActivity{
             createMediaPlayer();
 
         }
+        @Override
+        public void onStop() {
+            super.onStop();
+            if(getActivity().isChangingConfigurations()) {
+                Log.i(getTag(), "configuration is changing: keep playing");
+            } else {
+                destroyMediaPlayer();
+            }
+        }
 
         @SuppressLint("ClickableViewAccessibility")
         @Override
@@ -80,7 +89,6 @@ public class MainActivity extends AppCompatActivity{
                         mHandler.post(new Runnable() {
 
                             public void run() {
-//                                mMediaController.setEnabled(true);
                                 mMediaController.show();
                             }
                         });
@@ -95,8 +103,6 @@ public class MainActivity extends AppCompatActivity{
                     mMediaPlayer.setDisplay(surfaceHolder);
                     setMediaController();
                     setSurfaceSize();
-
-
                 }
 
                 @Override
@@ -132,36 +138,20 @@ public class MainActivity extends AppCompatActivity{
                 getActivity().findViewById(R.id.video_surface_container).setBackgroundColor(Color.BLACK);
 
             }
-//
+
             View container = (View) mSurfaceView.getParent();
             float containerWidth = container.getWidth();
             float containerHeight = container.getHeight();
             android.view.ViewGroup.LayoutParams lp = mSurfaceView.getLayoutParams();
-//            if (getResources().getConfiguration().orientation == 1) {
-//                lp.width = (int) videoWidth;
-//                lp.height = (int) videoHeight;
-//            } else {
-//                lp.width = (int) videoWidth;
-//                lp.height = (int) videoHeight;
-//            }
-//
+
             if (videoHeight > videoWidth) {
                 getActivity().findViewById(R.id.video_surface_container).setBackgroundColor(Color.BLACK);
                 lp.width = (int) ((videoWidth / videoHeight) * containerHeight);
                 lp.height = (int) containerHeight;
             } else {
                 lp.width = (int) containerWidth;
-//            lp.height = (int) videoHeight;
                 lp.height = (int) ((videoHeight / videoWidth) * containerWidth);
             }
-//
-//            lp.width = (int) containerWidth;
-////            lp.height = (int) videoHeight;
-//            lp.height = (int) ((videoHeight / videoWidth) * containerWidth);
-//            if(lp.height > containerHeight) {
-//                lp.width = (int) ((videoWidth / videoHeight) * containerHeight);
-//                lp.height = (int) containerHeight;
-//            }
             mSurfaceView.setLayoutParams(lp);
         }
 
@@ -183,7 +173,6 @@ public class MainActivity extends AppCompatActivity{
         }
 
         private void destroyMediaPlayer() {
-            Log.d(TAG, "destroyMediaPlayer");
             mMediaPlayer.stop();
             mMediaPlayer.reset();
             mMediaPlayer.release();
@@ -199,9 +188,6 @@ public class MainActivity extends AppCompatActivity{
         @Override
         public void onPrepared(MediaPlayer mediaPlayer) {
             mMediaPlayer.start();
-
-            Log.d(TAG,"onpreparingmediacontroller");
-
         }
 
         @Override
@@ -280,60 +266,5 @@ public class MainActivity extends AppCompatActivity{
                 mMediaPlayer.setVolume(0,0);
             }
         }
-//
-//        @Override
-//        public void start() {
-//            mMediaPlayer.start();
-//        }
-//
-//        @Override
-//        public void pause() {
-//            mMediaPlayer.pause();
-//        }
-//
-//        @Override
-//        public int getDuration() {
-//            return mMediaPlayer.getDuration();
-//        }
-//
-//        @Override
-//        public int getCurrentPosition() {
-//            return mMediaPlayer.getCurrentPosition();
-//        }
-//
-//        @Override
-//        public void seekTo(int i) {
-//            mMediaPlayer.seekTo(i);
-//        }
-//
-//        @Override
-//        public boolean isPlaying() {
-//            return mMediaPlayer.isPlaying();
-//        }
-//
-//        @Override
-//        public int getBufferPercentage() {
-//            return 0;
-//        }
-//
-//        @Override
-//        public boolean canPause() {
-//            return true;
-//        }
-//
-//        @Override
-//        public boolean canSeekBackward() {
-//            return true;
-//        }
-//
-//        @Override
-//        public boolean canSeekForward() {
-//            return true;
-//        }
-//
-//        @Override
-//        public int getAudioSessionId() {
-//            return 0;
-//        }
     }
 }

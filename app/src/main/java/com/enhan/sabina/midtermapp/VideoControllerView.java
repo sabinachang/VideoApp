@@ -25,36 +25,6 @@ import java.lang.ref.WeakReference;
 import java.util.Formatter;
 import java.util.Locale;
 
-
-
-/**
- * A view containing controls for a MediaPlayer. Typically contains the
- * buttons like "Play/Pause", "Rewind", "Fast Forward" and a progress
- * slider. It takes care of synchronizing the controls with the state
- * of the MediaPlayer.
- * <p>
- * The way to use this class is to instantiate it programatically.
- * The MediaController will create a default set of controls
- * and put them in a window floating above your application. Specifically,
- * the controls will float above the view specified with setAnchorView().
- * The window will disappear if left idle for three seconds and reappear
- * when the user touches the anchor view.
- * <p>
- * Functions like show() and hide() have no effect when MediaController
- * is created in an xml layout.
- *
- * MediaController will hide and
- * show the buttons according to these rules:
- * <ul>
- * <li> The "previous" and "next" buttons are hidden until setPrevNextListeners()
- *   has been called
- * <li> The "previous" and "next" buttons are visible but disabled if
- *   setPrevNextListeners() was called with null listeners
- * <li> The "rewind" and "fastforward" buttons are shown unless requested
- *   otherwise by using the MediaController(Context, boolean) constructor
- *   with the boolean set to false
- * </ul>
- */
 public class VideoControllerView extends FrameLayout {
     private static final String TAG = "VideoControllerView";
 
@@ -72,15 +42,12 @@ public class VideoControllerView extends FrameLayout {
     private boolean             mUseFastForward;
     private boolean             mFromXml;
     private boolean             mSoundOn = true;
-    private boolean             mListenersSet;
     private View.OnClickListener mNextListener, mPrevListener;
     StringBuilder               mFormatBuilder;
     Formatter                   mFormatter;
     private ImageButton         mPauseButton;
     private ImageButton         mFfwdButton;
     private ImageButton         mRewButton;
-    private ImageButton         mNextButton;
-    private ImageButton         mPrevButton;
     private ImageButton         mFullscreenButton;
     private ImageButton         mMuteButton;
     private Handler             mHandler = new MessageHandler(this);
@@ -120,18 +87,8 @@ public class VideoControllerView extends FrameLayout {
         mPlayer = player;
         updatePausePlay();
         updateFullScreen();
-//        startSound();
-
-
     }
 
-
-
-    /**
-     * Set the view that acts as the anchor for the control view.
-     * This can for example be a VideoView, or your Activity's main view.
-     * @param view The view to which to anchor the controller when it is visible.
-     */
     public void setAnchorView(ViewGroup view) {
         mAnchor = view;
 
@@ -145,12 +102,6 @@ public class VideoControllerView extends FrameLayout {
         addView(v, frameParams);
     }
 
-    /**
-     * Create the view that holds the widgets that control playback.
-     * Derived classes can override this to create their own.
-     * @return The controller view.
-     * @hide This doesn't work as advertised
-     */
     protected View makeControllerView() {
         LayoutInflater inflate = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mRoot = inflate.inflate(R.layout.media_controller, null);
@@ -193,16 +144,6 @@ public class VideoControllerView extends FrameLayout {
         if (mMuteButton != null) {
             mMuteButton.setOnClickListener(mMuteListener);
         }
-        // By default these are hidden. They will be enabled when setPrevNextListeners() is called
-//        mNextButton = (ImageButton) v.findViewById(R.id.next);
-//        if (mNextButton != null && !mFromXml && !mListenersSet) {
-//            mNextButton.setVisibility(View.GONE);
-//        }
-//        mPrevButton = (ImageButton) v.findViewById(R.id.prev);
-//        if (mPrevButton != null && !mFromXml && !mListenersSet) {
-//            mPrevButton.setVisibility(View.GONE);
-//        }
-
         mProgress = (ProgressBar) v.findViewById(R.id.mediacontroller_progress);
         if (mProgress != null) {
             if (mProgress instanceof SeekBar) {
@@ -220,18 +161,10 @@ public class VideoControllerView extends FrameLayout {
         installPrevNextListeners();
     }
 
-    /**
-     * Show the controller on screen. It will go away
-     * automatically after 3 seconds of inactivity.
-     */
     public void show() {
         show(mDefaultTimeout);
     }
 
-    /**
-     * Disable pause or seek buttons if the stream cannot be paused or seeked.
-     * This requires the control interface to be a MediaPlayerControlExt
-     */
     private void disableUnsupportedButtons() {
         if (mPlayer == null) {
             return;
@@ -248,19 +181,9 @@ public class VideoControllerView extends FrameLayout {
                 mFfwdButton.setEnabled(false);
             }
         } catch (IncompatibleClassChangeError ex) {
-            // We were given an old version of the interface, that doesn't have
-            // the canPause/canSeekXYZ methods. This is OK, it just means we
-            // assume the media can be paused and seeked, and so we don't disable
-            // the buttons.
         }
     }
 
-    /**
-     * Show the controller on screen. It will go away
-     * automatically after 'timeout' milliseconds of inactivity.
-     * @param timeout The timeout in milliseconds. Use 0 to show
-     * the controller until hide() is called.
-     */
     public void show(int timeout) {
         if (!mShowing && mAnchor != null) {
             setProgress();
@@ -280,11 +203,6 @@ public class VideoControllerView extends FrameLayout {
         }
         updatePausePlay();
         updateFullScreen();
-
-
-        // cause the progress bar to be updated even if mShowing
-        // was already true.  This happens, for example, if we're
-        // paused with the progress bar showing the user hits play.
         mHandler.sendEmptyMessage(SHOW_PROGRESS);
 
         Message msg = mHandler.obtainMessage(FADE_OUT);
@@ -298,9 +216,6 @@ public class VideoControllerView extends FrameLayout {
         return mShowing;
     }
 
-    /**
-     * Remove the controller from the screen.
-     */
     public void hide() {
         if (mAnchor == null) {
             return;
@@ -339,7 +254,6 @@ public class VideoControllerView extends FrameLayout {
         int duration = mPlayer.getDuration();
         if (mProgress != null) {
             if (duration > 0) {
-                // use long to avoid overflow
                 long pos = 1000L * position / duration;
                 mProgress.setProgress( (int) pos);
             }
@@ -405,7 +319,7 @@ public class VideoControllerView extends FrameLayout {
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
                 || keyCode == KeyEvent.KEYCODE_VOLUME_UP
                 || keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
-            // don't show the controls for volume adjustment
+
             return super.dispatchKeyEvent(event);
         } else if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_MENU) {
             if (uniqueDown) {
@@ -429,7 +343,6 @@ public class VideoControllerView extends FrameLayout {
 
         @Override
         public void onClick(View view) {
-//            doMuteOn();
             if (mSoundOn) {
                 mPlayer.toggleSound(false);
                 mSoundOn = false;
@@ -446,17 +359,6 @@ public class VideoControllerView extends FrameLayout {
         }
     };
 
-    private void doMuteOn() {
-        AudioManager audio = (AudioManager)(getContext().getSystemService(Context.AUDIO_SERVICE));
-        int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
-        if (currentVolume != 0) {
-            audio.setStreamVolume(AudioManager.STREAM_MUSIC,0,0);
-        } else {
-            audio.setStreamVolume(AudioManager.STREAM_MUSIC,10,0);
-        }
-
-        updateMuteOn();
-    }
 
     private View.OnClickListener mFullscreenListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -468,7 +370,6 @@ public class VideoControllerView extends FrameLayout {
 
     public void changeTimeout( int millisec) {
         mDefaultTimeout = millisec;
-        Log.d("EnHan",""+mDefaultTimeout);
         hide();
         show(mDefaultTimeout);
     }
@@ -498,31 +399,6 @@ public class VideoControllerView extends FrameLayout {
         }
     }
 
-    private void startSound() {
-        AudioManager audio = (AudioManager)(getContext().getSystemService(Context.AUDIO_SERVICE));
-        int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
-        if (currentVolume == 0) {
-            audio.setStreamVolume(AudioManager.STREAM_MUSIC,10,0);
-            
-        }
-        
-
-    }                                                                       
-
-    private void updateMuteOn() {
-        if (mRoot == null || mMuteButton == null || mPlayer == null) {
-            return;
-        }
-        mMuteButton.setBackgroundResource(0);
-        AudioManager audio = (AudioManager)(getContext().getSystemService(Context.AUDIO_SERVICE));
-        int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
-        if (currentVolume ==  0) {
-            mMuteButton.setImageResource(R.drawable.ic_volume_off_black_24dp);
-        } else {
-            mMuteButton.setImageResource(R.drawable.ic_volume_mute_black_24dp);
-        }
-    }
-
     private void doPauseResume() {
         if (mPlayer == null) {
             return;
@@ -544,28 +420,11 @@ public class VideoControllerView extends FrameLayout {
         mPlayer.toggleFullScreen();
     }
 
-    // There are two scenarios that can trigger the seekbar listener to trigger:
-    //
-    // The first is the user using the touchpad to adjust the posititon of the
-    // seekbar's thumb. In this case onStartTrackingTouch is called followed by
-    // a number of onProgressChanged notifications, concluded by onStopTrackingTouch.
-    // We're setting the field "mDragging" to true for the duration of the dragging
-    // session to avoid jumps in the position in case of ongoing playback.
-    //
-    // The second scenario involves the user operating the scroll ball, in this
-    // case there WON'T BE onStartTrackingTouch/onStopTrackingTouch notifications,
-    // we will simply apply the updated position without suspending regular updates.
     private OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
         public void onStartTrackingTouch(SeekBar bar) {
             show(3600000);
 
             mDragging = true;
-
-            // By removing these pending progress messages we make sure
-            // that a) we won't update the progress while the user adjusts
-            // the seekbar and b) once the user is done dragging the thumb
-            // we will post one of these messages to the queue again and
-            // this ensures that there will be exactly one message queued up.
             mHandler.removeMessages(SHOW_PROGRESS);
         }
 
@@ -575,8 +434,6 @@ public class VideoControllerView extends FrameLayout {
             }
 
             if (!fromuser) {
-                // We're not interested in programmatically generated changes to
-                // the progress bar's position.
                 return;
             }
 
@@ -592,10 +449,6 @@ public class VideoControllerView extends FrameLayout {
             setProgress();
             updatePausePlay();
             show(mDefaultTimeout);
-
-            // Ensure that progress is properly updated in the future,
-            // the call to show() does not guarantee this because it is a
-            // no-op if we are already showing.
             mHandler.sendEmptyMessage(SHOW_PROGRESS);
         }
     };
@@ -610,12 +463,6 @@ public class VideoControllerView extends FrameLayout {
         }
         if (mRewButton != null) {
             mRewButton.setEnabled(enabled);
-        }
-        if (mNextButton != null) {
-            mNextButton.setEnabled(enabled && mNextListener != null);
-        }
-        if (mPrevButton != null) {
-            mPrevButton.setEnabled(enabled && mPrevListener != null);
         }
         if (mProgress != null) {
             mProgress.setEnabled(enabled);
@@ -667,31 +514,14 @@ public class VideoControllerView extends FrameLayout {
     };
 
     private void installPrevNextListeners() {
-        if (mNextButton != null) {
-            mNextButton.setOnClickListener(mNextListener);
-            mNextButton.setEnabled(mNextListener != null);
-        }
-
-        if (mPrevButton != null) {
-            mPrevButton.setOnClickListener(mPrevListener);
-            mPrevButton.setEnabled(mPrevListener != null);
-        }
     }
 
     public void setPrevNextListeners(View.OnClickListener next, View.OnClickListener prev) {
         mNextListener = next;
         mPrevListener = prev;
-        mListenersSet = true;
-
         if (mRoot != null) {
             installPrevNextListeners();
 
-            if (mNextButton != null && !mFromXml) {
-                mNextButton.setVisibility(View.VISIBLE);
-            }
-            if (mPrevButton != null && !mFromXml) {
-                mPrevButton.setVisibility(View.VISIBLE);
-            }
         }
     }
 
