@@ -119,7 +119,7 @@ public class VideoControllerView extends FrameLayout {
         mPlayer = player;
         updatePausePlay();
         updateFullScreen();
-//        startSound();
+        startSound();
 
 
     }
@@ -420,7 +420,7 @@ public class VideoControllerView extends FrameLayout {
     private View.OnClickListener mPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
             doPauseResume();
-//            show(mDefaultTimeout);
+            show(mDefaultTimeout);
         }
     };
     
@@ -429,7 +429,7 @@ public class VideoControllerView extends FrameLayout {
         @Override
         public void onClick(View view) {
             doMuteOn();
-//            show(mDefaultTimeout);
+            show(mDefaultTimeout);
         }
     };
 
@@ -449,7 +449,7 @@ public class VideoControllerView extends FrameLayout {
         public void onClick(View v) {
 
             doToggleFullscreen();
-//            show(mDefaultTimeout);
+            show(mDefaultTimeout);
         }
     };
 
@@ -634,7 +634,7 @@ public class VideoControllerView extends FrameLayout {
             mPlayer.seekTo(pos);
             setProgress();
 
-//            show(mDefaultTimeout);
+            show(mDefaultTimeout);
         }
     };
 
@@ -649,7 +649,7 @@ public class VideoControllerView extends FrameLayout {
             mPlayer.seekTo(pos);
             setProgress();
 
-//            show(mDefaultTimeout);
+            show(mDefaultTimeout);
         }
     };
 

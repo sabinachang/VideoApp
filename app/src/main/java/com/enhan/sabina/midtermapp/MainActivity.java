@@ -66,8 +66,13 @@ public class MainActivity extends AppCompatActivity{
             super.onActivityCreated(savedInstanceState);
 
             mSurfaceView = getActivity().findViewById(R.id.surface);
-            mMediaController = ((MainActivity)getActivity()).getController();
 
+            mMediaController = ((MainActivity)getActivity()).getController();
+            if (getResources().getConfiguration().orientation == 1) {
+                mMediaController.changeTimeout(0);
+            } else {
+                mMediaController.changeTimeout(3000);
+            }
             mSurfaceView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -153,8 +158,7 @@ public class MainActivity extends AppCompatActivity{
             try {
                 mMediaPlayer = new MediaPlayer();
 
-                mMediaPlayer.setDataSource(mVideoUrl
-                );
+                mMediaPlayer.setDataSource(mVideoUrl);
                 mMediaPlayer.setOnPreparedListener(this);
                 mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 mMediaPlayer.setOnBufferingUpdateListener(this);
@@ -249,10 +253,10 @@ public class MainActivity extends AppCompatActivity{
             if (getResources().getConfiguration().orientation == 1) {
                 getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-                mMediaController.changeTimeout(3000);
+
             } else {
                 getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                mMediaController.changeTimeout(0);
+
             }
         }
 //
