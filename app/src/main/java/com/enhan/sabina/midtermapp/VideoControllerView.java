@@ -71,6 +71,7 @@ public class VideoControllerView extends FrameLayout {
     private static final int    SHOW_PROGRESS = 2;
     private boolean             mUseFastForward;
     private boolean             mFromXml;
+    private boolean             mSoundOn = true;
     private boolean             mListenersSet;
     private View.OnClickListener mNextListener, mPrevListener;
     StringBuilder               mFormatBuilder;
@@ -119,7 +120,7 @@ public class VideoControllerView extends FrameLayout {
         mPlayer = player;
         updatePausePlay();
         updateFullScreen();
-        startSound();
+//        startSound();
 
 
     }
@@ -428,7 +429,19 @@ public class VideoControllerView extends FrameLayout {
 
         @Override
         public void onClick(View view) {
-            doMuteOn();
+//            doMuteOn();
+            if (mSoundOn) {
+                mPlayer.toggleSound(false);
+                mSoundOn = false;
+                mMuteButton.setBackgroundResource(0);
+                mMuteButton.setBackgroundResource(R.drawable.ic_volume_off_black_24dp);
+            } else {
+                mPlayer.toggleSound(true);
+                mSoundOn = true;
+                mMuteButton.setBackgroundResource(0);
+                mMuteButton.setBackgroundResource(R.drawable.ic_volume_mute_black_24dp);
+            }
+
             show(mDefaultTimeout);
         }
     };
@@ -695,6 +708,7 @@ public class VideoControllerView extends FrameLayout {
         boolean canSeekForward();
         boolean isFullScreen();
         void    toggleFullScreen();
+        void    toggleSound(boolean sound);
     }
 
     private static class MessageHandler extends Handler {

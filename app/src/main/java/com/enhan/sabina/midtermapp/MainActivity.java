@@ -259,6 +259,15 @@ public class MainActivity extends AppCompatActivity{
 
             }
         }
+
+        @Override
+        public void toggleSound(boolean sound) {
+            if (sound) {
+                mMediaPlayer.setVolume(1,1);
+            } else {
+                mMediaPlayer.setVolume(0,0);
+            }
+        }
 //
 //        @Override
 //        public void start() {
