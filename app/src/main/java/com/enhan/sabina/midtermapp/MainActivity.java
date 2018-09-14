@@ -130,6 +130,7 @@ public class MainActivity extends AppCompatActivity{
 
             if (videoHeight > videoWidth) {
                 getActivity().findViewById(R.id.video_surface_container).setBackgroundColor(Color.BLACK);
+
             }
 //
             View container = (View) mSurfaceView.getParent();
@@ -144,12 +145,23 @@ public class MainActivity extends AppCompatActivity{
 //                lp.height = (int) videoHeight;
 //            }
 //
-            lp.width = (int) containerWidth;
-            lp.height = (int) ((videoHeight / videoWidth) * containerWidth);
-            if(lp.height > containerHeight) {
+            if (videoHeight > videoWidth) {
+                getActivity().findViewById(R.id.video_surface_container).setBackgroundColor(Color.BLACK);
                 lp.width = (int) ((videoWidth / videoHeight) * containerHeight);
                 lp.height = (int) containerHeight;
+            } else {
+                lp.width = (int) containerWidth;
+//            lp.height = (int) videoHeight;
+                lp.height = (int) ((videoHeight / videoWidth) * containerWidth);
             }
+//
+//            lp.width = (int) containerWidth;
+////            lp.height = (int) videoHeight;
+//            lp.height = (int) ((videoHeight / videoWidth) * containerWidth);
+//            if(lp.height > containerHeight) {
+//                lp.width = (int) ((videoWidth / videoHeight) * containerHeight);
+//                lp.height = (int) containerHeight;
+//            }
             mSurfaceView.setLayoutParams(lp);
         }
 
@@ -158,7 +170,7 @@ public class MainActivity extends AppCompatActivity{
             try {
                 mMediaPlayer = new MediaPlayer();
 
-                mMediaPlayer.setDataSource(mVideoUrl);
+                mMediaPlayer.setDataSource(mPortraitVideoUrl);
                 mMediaPlayer.setOnPreparedListener(this);
                 mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 mMediaPlayer.setOnBufferingUpdateListener(this);
